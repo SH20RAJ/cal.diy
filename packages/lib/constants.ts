@@ -3,6 +3,7 @@
  * prepends https:// to make it valid for URL parsing.
  * This handles cases where environment variables have their protocol stripped
  */
+import process from "node:process";
 function ensureProtocol(url: string | undefined): string {
   if (!url) return "";
   if (url.startsWith("http://") || url.startsWith("https://")) return url;
@@ -159,8 +160,8 @@ export const CREDENTIAL_SYNC_ENDPOINT = process.env.CALCOM_CREDENTIAL_SYNC_ENDPO
 // Service Account Encryption Key for encrypting/decrypting service account keys
 export const SERVICE_ACCOUNT_ENCRYPTION_KEY = process.env.CALCOM_SERVICE_ACCOUNT_ENCRYPTION_KEY;
 
-export const DEFAULT_LIGHT_BRAND_COLOR = "#0ea5e9";
-export const DEFAULT_DARK_BRAND_COLOR = "#22d3ee";
+export const DEFAULT_LIGHT_BRAND_COLOR: string = "#0ea5e9";
+export const DEFAULT_DARK_BRAND_COLOR: string = "#22d3ee";
 
 export const TOP_BANNER_HEIGHT = 40;
 

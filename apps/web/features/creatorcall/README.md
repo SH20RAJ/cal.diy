@@ -1,6 +1,6 @@
 # CreatorCall Features
 
-This folder contains CreatorCall-specific business logic and feature slices layered on top of Cal.diy core scheduling.
+This folder contains CreatorCall-specific business logic and feature slices layered on top of the core scheduling engine.
 
 Key focus areas:
 - Creator onboarding

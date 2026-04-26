@@ -1,8 +1,7 @@
+import { generateCreatorAIText } from "@lib/creatorcall/openai";
 import { NextResponse } from "next/server";
 
-import { generateCreatorAIText } from "@/lib/creatorcall/openai";
-
-export async function POST(request: Request) {
+export async function POST(request: Request): Promise<NextResponse> {
   try {
     const body = (await request.json()) as {
       creatorNiche?: string;
@@ -26,9 +25,10 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ agenda });
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to generate agenda" },
-      { status: 400 }
-    );
+    if (error instanceof Error) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+
+    return NextResponse.json({ error: "Failed to generate agenda" }, { status: 400 });
   }
 }

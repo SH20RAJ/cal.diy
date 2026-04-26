@@ -1,10 +1,9 @@
-import { useRouter } from "next/navigation";
-
 import { useLocale } from "@calcom/lib/hooks/useLocale";
 import { sessionStorage } from "@calcom/lib/webstorage";
 import { trpc } from "@calcom/trpc/react";
 import { showToast } from "@calcom/ui/components/toast";
 import { setShowWelcomeToCalcomModalFlag } from "@calcom/web/modules/shell/hooks/useWelcomeToCalcomModal";
+import { useRouter } from "next/navigation";
 
 const ONBOARDING_REDIRECT_KEY = "onBoardingRedirect";
 const ORG_MODAL_STORAGE_KEY = "showNewOrgModal";
@@ -15,24 +14,18 @@ const DEFAULT_EVENT_TYPES = [
     slug: "one-on-one-call",
     length: 30,
     description: "A focused 1:1 creator call.",
-    price: 4900,
-    currency: "usd",
   },
   {
     title: "Consultation",
     slug: "consultation",
     length: 45,
     description: "Personalized consultation session.",
-    price: 7900,
-    currency: "usd",
   },
   {
     title: "Mentorship",
     slug: "mentorship",
     length: 60,
     description: "Deep-dive mentorship and roadmap guidance.",
-    price: 12900,
-    currency: "usd",
   },
 ];
 
@@ -56,9 +49,6 @@ export const useSubmitPersonalOnboarding = () => {
                 slug: event.slug,
                 length: event.length,
                 description: event.description,
-                price: event.price,
-                currency: event.currency,
-                hidden: event.hidden,
               });
             })
           );

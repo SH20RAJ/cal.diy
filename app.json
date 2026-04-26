@@ -1,7 +1,7 @@
 {
   "name": "CreatorCall",
   "description": "Scheduling & Monetization OS for Creators",
-  "repository": "https://github.com/calcom/cal.diy",
+  "repository": "https://github.com/SH20RAJ/cal.diy",
   "logo": "https://creatorcall.app/logo.png",
   "keywords": ["react", "typescript", "node", "nextjs", "prisma", "postgres", "trpc"],
   "addons": [
