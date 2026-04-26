@@ -1,25 +1,26 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
-import { useForm } from "react-hook-form";
-import posthog from "posthog-js";
-
 import { useLocale } from "@calcom/lib/hooks/useLocale";
 import { md } from "@calcom/lib/markdownIt";
 import turndown from "@calcom/lib/turndownService";
 import { localStorage } from "@calcom/lib/webstorage";
-import { trpc } from "@calcom/trpc/react";
 import type { RouterOutputs } from "@calcom/trpc/react";
+import { trpc } from "@calcom/trpc/react";
 import { UserAvatar } from "@calcom/ui/components/avatar";
 import { Button } from "@calcom/ui/components/button";
 import { Editor } from "@calcom/ui/components/editor";
 import { Label } from "@calcom/ui/components/form";
 import { ImageUploader } from "@calcom/ui/components/image-uploader";
 import { showToast } from "@calcom/ui/components/toast";
+import { useRouter } from "next/navigation";
+import posthog from "posthog-js";
+import { useRef, useState } from "react";
+import { useForm } from "react-hook-form";
 
 type FormData = {
   bio: string;
+  creatorNiche: string;
+  creatorDefaultSessionPrice: number;
 };
 
 interface UserProfileProps {
@@ -29,8 +30,12 @@ interface UserProfileProps {
 const UserProfile = ({ user }: UserProfileProps) => {
   const { t } = useLocale();
   const avatarRef = useRef<HTMLInputElement>(null);
-  const { setValue, handleSubmit, getValues } = useForm<FormData>({
-    defaultValues: { bio: user?.bio || "" },
+  const { setValue, handleSubmit, getValues, register } = useForm<FormData>({
+    defaultValues: {
+      bio: user?.bio || "",
+      creatorNiche: (user?.metadata as any)?.creatorNiche || "",
+      creatorDefaultSessionPrice: (user?.metadata as any)?.creatorDefaultSessionPrice || 0,
+    },
   });
 
   const { data: eventTypes } = trpc.viewer.eventTypes.list.useQuery();
@@ -78,13 +83,17 @@ const UserProfile = ({ user }: UserProfileProps) => {
     },
   });
 
-  const onSubmit = handleSubmit((data: { bio: string }) => {
-    const { bio } = data;
+  const onSubmit = handleSubmit((data: FormData) => {
+    const { bio, creatorNiche, creatorDefaultSessionPrice } = data;
 
     // telemetry.event(telemetryEventTypes.onboardingFinished);
 
     mutation.mutate({
       bio,
+      metadata: {
+        creatorNiche,
+        creatorDefaultSessionPrice: Number(creatorDefaultSessionPrice),
+      },
       completedOnboarding: true,
     });
   });
@@ -159,6 +168,34 @@ const UserProfile = ({ user }: UserProfileProps) => {
           setFirstRender={setFirstRender}
         />
         <p className="text-default mt-2 font-sans text-sm font-normal">{t("few_sentences_about_yourself")}</p>
+      </fieldset>
+
+      <fieldset className="mt-8">
+        <Label className="text-default mb-2 block text-sm font-medium">{t("creator_niche")}</Label>
+        <input
+          {...register("creatorNiche")}
+          placeholder={t("creator_niche_placeholder")}
+          className="border-default focus:ring-emphasis block w-full rounded-md border px-3 py-2 text-sm focus:border-gray-800 focus:outline-none"
+        />
+        <p className="text-default mt-2 font-sans text-sm font-normal">{t("creator_niche_description")}</p>
+      </fieldset>
+
+      <fieldset className="mt-8">
+        <Label className="text-default mb-2 block text-sm font-medium">{t("default_session_price")}</Label>
+        <div className="relative mt-1 rounded-md shadow-sm">
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+            <span className="text-subtle sm:text-sm">$</span>
+          </div>
+          <input
+            {...register("creatorDefaultSessionPrice")}
+            type="number"
+            placeholder={t("default_session_price_placeholder")}
+            className="border-default focus:ring-emphasis block w-full rounded-md border py-2 pl-7 pr-12 text-sm focus:border-gray-800 focus:outline-none"
+          />
+        </div>
+        <p className="text-default mt-2 font-sans text-sm font-normal">
+          {t("default_session_price_description")}
+        </p>
       </fieldset>
       <Button
         loading={mutation.isPending}

@@ -43,6 +43,17 @@ export function CreatorDashboardView() {
     return eventTypes.filter((eventType) => !eventType.hidden);
   }, [eventTypes]);
 
+  const totalEarnings = useMemo(() => {
+    if (!bookingsData?.bookings) return 0;
+    return upcomingBookings.reduce((acc, booking) => {
+      const payment = (booking as any).payment?.[0];
+      if (payment && payment.status === "PAID") {
+        return acc + (payment.amount || 0);
+      }
+      return acc;
+    }, 0);
+  }, [upcomingBookings, bookingsData]);
+
   return (
     <div className="space-y-6 p-4 md:p-6">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -60,12 +71,12 @@ export function CreatorDashboardView() {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <MetricCard icon="calendar" label="Upcoming calls" value={upcomingBookings.length} />
-        <MetricCard icon="clock" label="Session types" value={activeSessionTypes.length} />
         <MetricCard
           icon="credit-card"
-          label="Default price"
-          value={defaultPrice > 0 ? `$${Math.round(defaultPrice / 100)}` : "Free"}
+          label="Estimated earnings"
+          value={totalEarnings > 0 ? `$${(totalEarnings / 100).toFixed(2)}` : "$0.00"}
         />
+        <MetricCard icon="clock" label="Session types" value={activeSessionTypes.length} />
         <MetricCard icon="sparkles" label="Creator plan" value={plan} />
       </div>
 
@@ -76,16 +87,21 @@ export function CreatorDashboardView() {
           ) : (
             <ul className="divide-subtle divide-y">
               {upcomingBookings.slice(0, 5).map((booking) => (
-                <li key={booking.id} className="py-3">
-                  <p className="text-emphasis truncate text-sm font-medium">{booking.title}</p>
-                  <p className="text-subtle text-xs">
-                    {new Date(booking.startTime).toLocaleDateString(undefined, {
-                      month: "short",
-                      day: "numeric",
-                      hour: "numeric",
-                      minute: "2-digit",
-                    })}
-                  </p>
+                <li key={booking.id} className="flex items-center justify-between gap-4 py-3">
+                  <div className="min-w-0">
+                    <p className="text-emphasis truncate text-sm font-medium">{booking.title}</p>
+                    <p className="text-subtle text-xs">
+                      {new Date(booking.startTime).toLocaleDateString(undefined, {
+                        month: "short",
+                        day: "numeric",
+                        hour: "numeric",
+                        minute: "2-digit",
+                      })}
+                      {" • "}
+                      {(booking as any).attendees?.[0]?.name || "Guest"}
+                    </p>
+                  </div>
+                  {(booking as any).payment?.[0]?.status === "PAID" && <Badge variant="success">Paid</Badge>}
                 </li>
               ))}
             </ul>
