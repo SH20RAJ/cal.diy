@@ -11,20 +11,28 @@ const ORG_MODAL_STORAGE_KEY = "showNewOrgModal";
 
 const DEFAULT_EVENT_TYPES = [
   {
-    title: "15min_meeting",
-    slug: "15min",
-    length: 15,
-  },
-  {
-    title: "30min_meeting",
-    slug: "30min",
+    title: "1:1 Call",
+    slug: "one-on-one-call",
     length: 30,
+    description: "A focused 1:1 creator call.",
+    price: 4900,
+    currency: "usd",
   },
   {
-    title: "secret_meeting",
-    slug: "secret",
-    length: 15,
-    hidden: true,
+    title: "Consultation",
+    slug: "consultation",
+    length: 45,
+    description: "Personalized consultation session.",
+    price: 7900,
+    currency: "usd",
+  },
+  {
+    title: "Mentorship",
+    slug: "mentorship",
+    length: 60,
+    description: "Deep-dive mentorship and roadmap guidance.",
+    price: 12900,
+    currency: "usd",
   },
 ];
 
@@ -44,9 +52,12 @@ export const useSubmitPersonalOnboarding = () => {
           await Promise.all(
             DEFAULT_EVENT_TYPES.map(async (event) => {
               return createEventType.mutateAsync({
-                title: t(event.title),
+                title: event.title,
                 slug: event.slug,
                 length: event.length,
+                description: event.description,
+                price: event.price,
+                currency: event.currency,
                 hidden: event.hidden,
               });
             })

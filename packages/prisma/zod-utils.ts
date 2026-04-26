@@ -397,6 +397,20 @@ export const userMetadata = z
         revertTime: z.string().optional(),
       })
       .optional(),
+    creatorNiche: z.string().max(100).optional(),
+    creatorDefaultSessionPrice: z.number().int().min(0).optional(),
+    creatorSocialLinks: z
+      .array(
+        z.object({
+          label: z.string().max(30),
+          url: z.string().url(),
+        })
+      )
+      .max(6)
+      .optional(),
+    creatorPlan: z.enum(["free", "pro"]).optional(),
+    creatorAiEnabled: z.boolean().optional(),
+    creatorMonthlyBookingLimit: z.number().int().min(1).optional(),
   })
   .nullable();
 

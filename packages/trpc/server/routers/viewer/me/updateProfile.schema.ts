@@ -6,11 +6,31 @@ import { z } from "zod";
 export type TUpdateUserMetadataAllowedKeys = {
   sessionTimeout?: number;
   defaultBookerLayouts?: z.infer<typeof bookerLayouts>;
+  creatorNiche?: string;
+  creatorDefaultSessionPrice?: number;
+  creatorSocialLinks?: { label: string; url: string }[];
+  creatorPlan?: "free" | "pro";
+  creatorAiEnabled?: boolean;
+  creatorMonthlyBookingLimit?: number;
 };
 
 export const updateUserMetadataAllowedKeys: z.ZodType<TUpdateUserMetadataAllowedKeys> = z.object({
   sessionTimeout: z.number().optional(), // Minutes
   defaultBookerLayouts: bookerLayouts.optional(),
+  creatorNiche: z.string().max(100).optional(),
+  creatorDefaultSessionPrice: z.number().int().min(0).optional(),
+  creatorSocialLinks: z
+    .array(
+      z.object({
+        label: z.string().max(30),
+        url: z.string().url(),
+      })
+    )
+    .max(6)
+    .optional(),
+  creatorPlan: z.enum(["free", "pro"]).optional(),
+  creatorAiEnabled: z.boolean().optional(),
+  creatorMonthlyBookingLimit: z.number().int().min(1).optional(),
 });
 
 export type TUpdateProfileInputSchemaInput = {

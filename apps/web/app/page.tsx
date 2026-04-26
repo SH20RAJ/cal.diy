@@ -13,7 +13,7 @@ const RedirectPage = async () => {
     redirect("/auth/login");
   }
 
-  // Check if user needs onboarding and redirect before going to event-types
+  // Check if user needs onboarding and redirect before going to creator dashboard
   const organizationId = session.user.profile?.organizationId ?? null;
   const onboardingPath = await checkOnboardingRedirect(session.user.id, {
     checkEmailVerification: true,
@@ -23,7 +23,7 @@ const RedirectPage = async () => {
     redirect(onboardingPath);
   }
 
-  redirect("/event-types");
+  redirect("/creator");
 };
 
 export default RedirectPage;

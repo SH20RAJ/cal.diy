@@ -53,6 +53,8 @@ export const PersonalSettingsView = ({
         message: t("max_limit_allowed_hint", { limit: FULL_NAME_LENGTH_MAX_LIMIT }),
       }),
     bio: z.string().optional(),
+    creatorNiche: z.string().max(100).optional(),
+    creatorDefaultSessionPrice: z.coerce.number().int().min(0),
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -60,6 +62,14 @@ export const PersonalSettingsView = ({
     defaultValues: {
       name: personalDetails.name || userName || "",
       bio: personalDetails.bio || "",
+      creatorNiche:
+        typeof user?.metadata === "object" && user?.metadata && "creatorNiche" in user.metadata
+          ? String(user.metadata.creatorNiche ?? "")
+          : "",
+      creatorDefaultSessionPrice:
+        typeof user?.metadata === "object" && user?.metadata && "creatorDefaultSessionPrice" in user.metadata
+          ? Number(user.metadata.creatorDefaultSessionPrice ?? 0)
+          : 0,
     },
   });
 
@@ -101,6 +111,10 @@ export const PersonalSettingsView = ({
     await mutation.mutateAsync({
       name: data.name,
       bio: data.bio || "",
+      metadata: {
+        creatorNiche: data.creatorNiche || "",
+        creatorDefaultSessionPrice: data.creatorDefaultSessionPrice,
+      },
     });
 
     router.push("/onboarding/personal/calendar");
@@ -204,6 +218,25 @@ export const PersonalSettingsView = ({
                 {form.formState.errors.bio && (
                   <p className="text-error text-sm">{form.formState.errors.bio.message}</p>
                 )}
+              </div>
+
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="flex w-full flex-col gap-1.5">
+                  <TextField
+                    label="Creator niche"
+                    placeholder="Fitness, Design, Coding, Investing"
+                    {...form.register("creatorNiche")}
+                  />
+                </div>
+                <div className="flex w-full flex-col gap-1.5">
+                  <TextField
+                    type="number"
+                    min={0}
+                    label="Default session price (USD cents)"
+                    placeholder="4900"
+                    {...form.register("creatorDefaultSessionPrice")}
+                  />
+                </div>
               </div>
             </form>
           </FormProvider>

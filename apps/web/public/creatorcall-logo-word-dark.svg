@@ -1,0 +1,5 @@
+<svg width="340" height="68" viewBox="0 0 340 68" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="2" y="2" width="64" height="64" rx="20" fill="#0284C7"/>
+  <path d="M20 35C20 27.268 26.268 21 34 21H48V29H34C30.686 29 28 31.686 28 35C28 38.314 30.686 41 34 41H48V49H34C26.268 49 20 42.732 20 35Z" fill="white"/>
+  <text x="82" y="42" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif" font-size="30" font-weight="700" fill="#0F172A">CreatorCall</text>
+</svg>

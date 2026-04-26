@@ -1,8 +1,8 @@
 {
-  "name": "Cal.diy",
-  "description": "Open Source Scheduling",
+  "name": "CreatorCall",
+  "description": "Scheduling & Monetization OS for Creators",
   "repository": "https://github.com/calcom/cal.diy",
-  "logo": "https://cal.com/android-chrome-512x512.png",
+  "logo": "https://creatorcall.app/logo.png",
   "keywords": ["react", "typescript", "node", "nextjs", "prisma", "postgres", "trpc"],
   "addons": [
     {
