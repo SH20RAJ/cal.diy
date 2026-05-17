@@ -1,5 +1,6 @@
 import fetch from "node-fetch";
 
+import { validateUrlForSSRF, logBlockedSSRFAttempt } from "@calcom/lib/ssrfProtection";
 import { uploadAvatar } from "@calcom/lib/server/avatar";
 import { resizeBase64Image } from "@calcom/lib/server/resizeBase64Image";
 import prisma from "@calcom/prisma";
@@ -11,6 +12,13 @@ interface IPrefillAvatar {
 
 async function downloadImageDataFromUrl(url: string) {
   try {
+    // SSRF protection: validate URL before fetching
+    const validation = await validateUrlForSSRF(url);
+    if (!validation.isValid) {
+      logBlockedSSRFAttempt(url, validation.error || "Unknown", { service: "avatar-prefill" });
+      return null;
+    }
+
     const response = await fetch(url);
 
     if (!response.ok) {
