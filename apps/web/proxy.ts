@@ -4,6 +4,8 @@ import { get } from "@vercel/edge-config";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
+import { getSafeRedirectUrl } from "@calcom/lib/getSafeRedirectUrl";
+
 const safeGet = async <T = any>(key: string): Promise<T | undefined> => {
   try {
     return get<T>(key);
@@ -83,9 +85,25 @@ const proxy = async (req: NextRequest): Promise<NextResponse<unknown>> => {
     const returnTo = reqWithEnrichedHeaders.cookies.get("return-to");
 
     if (returnTo?.value) {
-      const response = NextResponse.redirect(new URL(returnTo.value, reqWithEnrichedHeaders.url), {
-        headers: requestHeaders,
-      });
+      // Validate redirect URL to prevent open redirect attacks
+      let safeUrl: URL;
+      try {
+        const validated = getSafeRedirectUrl(returnTo.value);
+        if (validated) {
+          safeUrl = new URL(validated);
+        } else {
+          safeUrl = new URL("/", reqWithEnrichedHeaders.url);
+        }
+      } catch {
+        // getSafeRedirectUrl throws on relative URLs — handle those safely
+        // Only allow paths that start with "/" and don't contain protocol tricks
+        if (returnTo.value.startsWith("/") && !returnTo.value.startsWith("//")) {
+          safeUrl = new URL(returnTo.value, reqWithEnrichedHeaders.url);
+        } else {
+          safeUrl = new URL("/", reqWithEnrichedHeaders.url);
+        }
+      }
+      const response = NextResponse.redirect(safeUrl, { headers: requestHeaders });
       response.cookies.delete("return-to");
       return response;
     }
