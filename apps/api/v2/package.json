@@ -61,7 +61,7 @@
     "@sentry/nestjs": "9.46.0",
     "@sentry/node": "9.46.0",
     "@sentry/profiling-node": "9.46.0",
-    "@snyk/protect": "latest",
+    "@snyk/protect": "1.1295.4",
     "axios": "1.15.0",
     "body-parser": "1.20.3",
     "bull": "4.15.1",
