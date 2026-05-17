@@ -102,7 +102,7 @@ export const sendEmailVerificationByCode = async ({
   }
 
   const translation = await getTranslation(language ?? "en", "common");
-  const secret = createHash("md5")
+  const secret = createHash("sha256")
     .update(email + process.env.CALENDSO_ENCRYPTION_KEY)
     .digest("hex");
 

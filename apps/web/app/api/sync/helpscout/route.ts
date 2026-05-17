@@ -1,5 +1,5 @@
 import { defaultResponderForAppDir } from "app/api/defaultResponderForAppDir";
-import { createHmac } from "node:crypto";
+import { createHmac, timingSafeEqual } from "node:crypto";
 import { headers } from "next/headers";
 import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
@@ -38,12 +38,16 @@ async function postHandler(request: NextRequest) {
     const parsedBody = helpscoutRequestBodySchema.safeParse(JSON.parse(rawBody.toString()));
     if (!parsedBody.success) return NextResponse.json({ message: "Invalid request body" }, { status: 400 });
 
-    // Verify the signature
-    const calculatedSig = createHmac("sha1", process.env.CALENDSO_ENCRYPTION_KEY)
+    // Verify the signature using SHA-256 and timing-safe comparison
+    const calculatedSig = createHmac("sha256", process.env.CALENDSO_ENCRYPTION_KEY)
       .update(rawBody)
       .digest("base64");
 
-    if (hsSignature !== calculatedSig)
+    // Timing-safe comparison to prevent timing attacks
+    if (hsSignature.length !== calculatedSig.length)
+      return NextResponse.json({ message: "Invalid signature" }, { status: 400 });
+
+    if (!timingSafeEqual(Buffer.from(hsSignature), Buffer.from(calculatedSig)))
       return NextResponse.json({ message: "Invalid signature" }, { status: 400 });
 
     const user = await webPrisma.user.findFirst({
