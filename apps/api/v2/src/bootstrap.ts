@@ -40,8 +40,13 @@ export const bootstrap = (app: NestExpressApplication): NestExpressApplication =
       defaultVersion: VERSION_2024_04_15,
     });
     app.use(helmet());
+    // CORS: Use CORS_ORIGINS env var (comma-separated) or default to cal.com domains.
+    // Set CORS_ORIGINS=* only for development.
+    const corsOrigins = process.env.CORS_ORIGINS
+      ? process.env.CORS_ORIGINS.split(",").map((o) => o.trim())
+      : ["https://cal.com", "https://app.cal.com", "http://localhost:3000"];
     app.enableCors({
-      origin: "*",
+      origin: corsOrigins,
       methods: ["GET", "PATCH", "DELETE", "HEAD", "POST", "PUT", "OPTIONS"],
       allowedHeaders: [
         X_CAL_CLIENT_ID,
