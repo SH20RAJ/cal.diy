@@ -10,5 +10,5 @@ export function traverseJSON<DB, TB extends keyof DB>(
     path = [path];
   }
 
-  return sql`${sql.ref(column)}->${sql.raw(path.map((item) => `'${item}'`).join("->"))}`;
+  return sql`${sql.ref(column)}->${sql.raw(path.map((item) => `'${item.replace(/'/g, "''")}'`).join("->"))}`;
 }
