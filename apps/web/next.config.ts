@@ -382,26 +382,12 @@ const nextConfig = (phase: string): NextConfig => {
 
       return [
         {
-          source: "/auth/:path*",
-          headers: [
-            {
-              key: "X-Frame-Options",
-              value: "DENY",
-            },
-          ],
-        },
-        {
-          source: "/signup",
-          headers: [
-            {
-              key: "X-Frame-Options",
-              value: "DENY",
-            },
-          ],
-        },
-        {
           source: "/:path*",
           headers: [
+            {
+              key: "X-Frame-Options",
+              value: "DENY",
+            },
             {
               key: "X-Content-Type-Options",
               value: "nosniff",
@@ -409,6 +395,18 @@ const nextConfig = (phase: string): NextConfig => {
             {
               key: "Referrer-Policy",
               value: "strict-origin-when-cross-origin",
+            },
+            {
+              key: "Strict-Transport-Security",
+              value: "max-age=31536000; includeSubDomains",
+            },
+            {
+              key: "X-DNS-Prefetch-Control",
+              value: "on",
+            },
+            {
+              key: "Permissions-Policy",
+              value: "camera=(), microphone=(), geolocation=()",
             },
           ],
         },

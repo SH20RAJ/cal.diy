@@ -62,7 +62,7 @@ const isPagePathRequest = (url: URL) => {
 };
 
 const shouldEnforceCsp = (url: URL) => {
-  return url.pathname.startsWith("/auth/login") || url.pathname.startsWith("/login");
+  return isPagePathRequest(url);
 };
 
 const proxy = async (req: NextRequest): Promise<NextResponse<unknown>> => {
@@ -163,7 +163,15 @@ function enrichRequestWithHeaders({ req }: { req: NextRequest }) {
 }
 
 export const config = {
-  matcher: ["/auth/login", "/login", "/apps/installed", "/auth/logout", "/:path*/embed", "/availability", "/api/auth/signup"],
+  matcher: [
+    /*
+     * Match all page paths except:
+     * - _next/static (static files)
+     * - _next/image (image optimization)
+     * - favicon.ico (favicon)
+     */
+    "/((?!_next/static|_next/image|favicon.ico).*)",
+  ],
 };
 
 export default proxy;
