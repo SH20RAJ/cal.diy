@@ -112,7 +112,25 @@ export class EventTypesRepository_2024_06_14 {
         id: eventTypeId,
         userId,
       },
-      include: { users: this.usersInclude, schedule: true, destinationCalendar: true },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        description: true,
+        length: true,
+        hidden: true,
+        position: true,
+        users: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatarUrl: true,
+          },
+        },
+        schedule: true,
+        destinationCalendar: true,
+      },
     });
   }
 
@@ -122,7 +140,25 @@ export class EventTypesRepository_2024_06_14 {
         userId,
       },
       ...(sortCreatedAt && { orderBy: { id: sortCreatedAt } }),
-      include: { users: this.usersInclude, schedule: true, destinationCalendar: true },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        description: true,
+        length: true,
+        hidden: true,
+        position: true,
+        users: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatarUrl: true,
+          },
+        },
+        schedule: true,
+        destinationCalendar: true,
+      },
     });
   }
 
@@ -133,15 +169,47 @@ export class EventTypesRepository_2024_06_14 {
         hidden: false,
       },
       ...(sortCreatedAt && { orderBy: { id: sortCreatedAt } }),
-      include: { users: this.usersInclude, schedule: true, destinationCalendar: true },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        description: true,
+        length: true,
+        hidden: true,
+        position: true,
+        users: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatarUrl: true,
+          },
+        },
+        schedule: true,
+        destinationCalendar: true,
+      },
     });
   }
 
   async getEventTypeById(eventTypeId: number) {
     return this.dbRead.prisma.eventType.findUnique({
       where: { id: eventTypeId },
-      include: {
-        users: this.usersInclude,
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        description: true,
+        length: true,
+        hidden: true,
+        position: true,
+        users: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatarUrl: true,
+          },
+        },
         schedule: true,
         destinationCalendar: true,
         calVideoSettings: true,
@@ -152,8 +220,22 @@ export class EventTypesRepository_2024_06_14 {
   async getEventTypeByIdWithHosts(eventTypeId: number) {
     return this.dbRead.prisma.eventType.findUnique({
       where: { id: eventTypeId },
-      include: {
-        users: this.usersInclude,
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        description: true,
+        length: true,
+        hidden: true,
+        position: true,
+        users: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatarUrl: true,
+          },
+        },
         schedule: true,
         destinationCalendar: true,
         calVideoSettings: true,
@@ -165,7 +247,29 @@ export class EventTypesRepository_2024_06_14 {
   async getEventTypeByIdIncludeUsersAndTeam(eventTypeId: number) {
     const eventType = await this.dbRead.prisma.eventType.findUnique({
       where: { id: eventTypeId },
-      include: { users: true, team: true },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        description: true,
+        length: true,
+        users: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatarUrl: true,
+          },
+        },
+        team: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            logoUrl: true,
+          },
+        },
+      },
     });
 
     if (!eventType) {
@@ -181,7 +285,29 @@ export class EventTypesRepository_2024_06_14 {
   async getEventTypeByIdWithOwnerAndTeam(eventTypeId: number) {
     return this.dbRead.prisma.eventType.findUnique({
       where: { id: eventTypeId },
-      include: { owner: true, team: true },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        description: true,
+        length: true,
+        owner: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatarUrl: true,
+          },
+        },
+        team: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            logoUrl: true,
+          },
+        },
+      },
     });
   }
 
@@ -205,7 +331,29 @@ export class EventTypesRepository_2024_06_14 {
           slug: slug,
         },
       },
-      include: { owner: true, team: true },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        description: true,
+        length: true,
+        owner: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatarUrl: true,
+          },
+        },
+        team: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            logoUrl: true,
+          },
+        },
+      },
     });
   }
 

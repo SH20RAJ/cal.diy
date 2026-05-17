@@ -79,7 +79,28 @@ export class TeamsEventTypesRepository {
           slug: eventTypeSlug,
         },
       },
-      include: { owner: true, team: true },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        description: true,
+        owner: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatarUrl: true,
+          },
+        },
+        team: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            logoUrl: true,
+          },
+        },
+      },
     });
   }
 
@@ -89,8 +110,22 @@ export class TeamsEventTypesRepository {
         teamId,
       },
       ...(sortCreatedAt && { orderBy: { id: sortCreatedAt } }),
-      include: {
-        users: true,
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        description: true,
+        length: true,
+        hidden: true,
+        position: true,
+        users: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatarUrl: true,
+          },
+        },
         schedule: true,
         hosts: true,
         destinationCalendar: true,

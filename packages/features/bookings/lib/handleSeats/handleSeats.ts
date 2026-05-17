@@ -57,11 +57,29 @@ const handleSeats = async (
     select: {
       uid: true,
       id: true,
-      attendees: { include: { bookingSeat: true } },
+      attendees: {
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          timeZone: true,
+          locale: true,
+          bookingSeat: true,
+        },
+      },
       userId: true,
       references: true,
       startTime: true,
-      user: true,
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          avatarUrl: true,
+          timeZone: true,
+          locale: true,
+        },
+      },
       status: true,
       smsReminderNumber: true,
       endTime: true,
