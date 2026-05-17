@@ -61,10 +61,27 @@ export class StripeController {
     const origin = req.headers.origin;
     const accessToken = authorization.replace("Bearer ", "");
 
+    // Validate returnTo and onErrorReturnTo to prevent open redirect
+    const isValidRedirectTarget = (url: string | null | undefined): boolean => {
+      if (!url) return false;
+      // Allow relative paths
+      if (url.startsWith("/")) return true;
+      // Only allow http/https URLs
+      try {
+        const parsed = new URL(url);
+        if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return false;
+        // Allow the request origin if present
+        if (origin && parsed.origin === origin) return true;
+        return false;
+      } catch {
+        return false;
+      }
+    };
+
     const state: OAuthCallbackState = {
-      onErrorReturnTo: !!onErrorReturnTo ? onErrorReturnTo : origin,
+      onErrorReturnTo: isValidRedirectTarget(onErrorReturnTo) ? onErrorReturnTo! : origin,
       fromApp: false,
-      returnTo: !!returnTo ? returnTo : origin,
+      returnTo: isValidRedirectTarget(returnTo) ? returnTo! : origin,
       accessToken,
     };
 

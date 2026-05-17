@@ -6,6 +6,8 @@ import { Request } from "express";
 import { ERROR_STATUS } from "@calcom/platform-constants";
 import { Response } from "@calcom/platform-types";
 
+const IS_PRODUCTION = process.env.NODE_ENV === "production";
+
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter<HttpException> {
   private readonly logger = new Logger("HttpExceptionFilter");
@@ -28,11 +30,14 @@ export class HttpExceptionFilter implements ExceptionFilter<HttpException> {
       ...userContext,
     });
 
+    // In production, don't expose internal exception details to clients
+    const errorDetails = IS_PRODUCTION ? undefined : exception.getResponse();
+
     response.status(statusCode).json({
       status: ERROR_STATUS,
       timestamp: new Date().toISOString(),
       path: request.url,
-      error: { code: exception.name, message: exception.message, details: exception.getResponse() },
+      error: { code: exception.name, message: exception.message, details: errorDetails },
     });
   }
 }

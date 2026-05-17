@@ -19,7 +19,13 @@ export async function resizeBase64Image(
   if (!mimetype) {
     throw new Error(`Could not distinguish mimetype`);
   }
-  const buffer = Buffer.from(base64OrUrl.replace(/^data:image\/\w+;base64,/, ""), "base64");
+  // Reject base64 inputs larger than ~10MB to prevent memory exhaustion
+  const MAX_BASE64_LENGTH = 13_333_333; // ~10MB when decoded
+  const base64Data = base64OrUrl.replace(/^data:image\/\w+;base64,/, "");
+  if (base64Data.length > MAX_BASE64_LENGTH) {
+    throw new Error("Base64 image input exceeds maximum allowed size (10MB)");
+  }
+  const buffer = Buffer.from(base64Data, "base64");
 
   const {
     // 96px is the height of the image on https://cal.com/peer

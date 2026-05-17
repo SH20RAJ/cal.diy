@@ -26,6 +26,7 @@ import { pushGTMEvent } from "@calcom/lib/gtm";
 import { useCompatSearchParams } from "@calcom/lib/hooks/useCompatSearchParams";
 import { useDebounce } from "@calcom/lib/hooks/useDebounce";
 import { useLocale } from "@calcom/lib/hooks/useLocale";
+import { getSafeRedirectUrl } from "@calcom/lib/getSafeRedirectUrl";
 import { INVALID_CLOUDFLARE_TOKEN_ERROR } from "@calcom/lib/server/checkCfTurnstileToken";
 import { IS_EUROPE } from "@calcom/lib/timezoneConstants";
 import { signupSchema as apiSignupSchema } from "@calcom/prisma/zod-utils";
@@ -294,10 +295,16 @@ export default function Signup({
       const gettingStartedPath = onboardingV3Enabled ? "onboarding/getting-started" : "getting-started";
       const verifyOrGettingStarted = emailVerificationEnabled ? "auth/verify-email" : gettingStartedPath;
       const constructCallBackIfUrlPresent = () => {
+        const rawCallbackUrl = searchParams.get("callbackUrl") || "";
+        // Ensure the callback URL is absolute before validating
+        const absoluteUrl = /^https?:\/\//.test(rawCallbackUrl)
+          ? rawCallbackUrl
+          : `${WEBAPP_URL}/${rawCallbackUrl}`;
+        const safeUrl = getSafeRedirectUrl(absoluteUrl) || `${WEBAPP_URL}/`;
         if (isOrgInviteByLink) {
-          return `${WEBAPP_URL}/${searchParams.get("callbackUrl")}`;
+          return safeUrl;
         }
-        return addOrUpdateQueryParam(`${WEBAPP_URL}/${searchParams.get("callbackUrl")}`, "from", "signup");
+        return addOrUpdateQueryParam(safeUrl, "from", "signup");
       };
 
       const constructCallBackIfUrlNotPresent = () => {

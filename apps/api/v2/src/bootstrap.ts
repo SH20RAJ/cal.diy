@@ -63,8 +63,8 @@ export const bootstrap = (app: NestExpressApplication): NestExpressApplication =
         whitelist: true,
         transform: true,
         validationError: {
-          target: true,
-          value: true,
+          target: false,
+          value: false,
         },
         exceptionFactory(errors: ValidationError[]): BadRequestException {
           return new BadRequestException({ errors });

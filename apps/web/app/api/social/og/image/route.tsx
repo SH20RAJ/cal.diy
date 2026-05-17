@@ -11,8 +11,8 @@ export const runtime = "edge";
 const meetingSchema = z.object({
   imageType: z.literal("meeting"),
   title: z.string(),
-  names: z.string().array(),
-  usernames: z.string().array(),
+  names: z.string().array().max(10),
+  usernames: z.string().array().max(10),
   meetingProfileName: z.string(),
   meetingImage: z.string().nullable().optional(),
 });
