@@ -35,10 +35,12 @@ export function rateLimiter() {
 
   if (!UNKEY_ROOT_KEY) {
     if (!warned) {
-      log.warn("Disabled because the UNKEY_ROOT_KEY environment variable was not found.");
+      log.warn(
+        "Rate limiting is UNAVAILABLE because the UNKEY_ROOT_KEY environment variable was not found. All rate-limited requests will be DENIED by default."
+      );
       warned = true;
     }
-    return () => ({ success: true, limit: 10, remaining: 999, reset: 0 }) as RatelimitResponse;
+    return () => ({ success: false, limit: 0, remaining: 0, reset: 0 }) as RatelimitResponse;
   }
   const timeout = {
     fallback: { success: true, limit: 10, remaining: 999, reset: 0 },
