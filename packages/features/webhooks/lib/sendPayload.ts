@@ -5,7 +5,26 @@ import type { TGetTranscriptAccessLink } from "@calcom/app-store/dailyvideo/zod"
 import { getHumanReadableLocationValue } from "@calcom/app-store/locations";
 import type { WebhookSubscriber, PaymentData } from "@calcom/features/webhooks/lib/dto/types";
 import { getUTCOffsetByTimezone } from "@calcom/lib/dayjs";
+import { validateUrlForSSRFSync } from "@calcom/lib/ssrfProtection";
 import type { CalendarEvent, Person } from "@calcom/types/Calendar";
+
+// Block dangerous Handlebars helpers that could enable RCE or template injection
+const DANGEROUS_HANDLEBARS_PATTERNS = [
+  /\{\{#if\s/i,
+  /\{\{#unless\s/i,
+  /\{\{#each\s/i,
+  /\{\{#with\s/i,
+  /\{\{#>\s/i, // partials
+  /\{\{lookup\s/i,
+  /\{\{log\s/i,
+  /\{\{!/, // comments can leak info
+  /\{\{\{/i, // triple-stash (raw HTML) - XSS risk
+  /\{\{&/i, // unescaped output
+];
+
+function isTemplateSafe(template: string): boolean {
+  return !DANGEROUS_HANDLEBARS_PATTERNS.some((pattern) => pattern.test(template));
+}
 
 // Minimal webhook shape for sending payloads (subset of WebhookSubscriber)
 type WebhookForPayload = Pick<WebhookSubscriber, "subscriberUrl" | "appId" | "payloadTemplate" | "version">;
@@ -185,6 +204,9 @@ function applyTemplate(
   data: WebhookDataType | Record<string, unknown>,
   contentType: ContentType
 ) {
+  if (!isTemplateSafe(template)) {
+    throw new Error("Webhook payload template contains blocked Handlebars helpers");
+  }
   const compiled = compile(template)(data).replace(/&quot;/g, '"');
 
   if (contentType === "application/json") {
@@ -307,6 +329,12 @@ const _sendPayload = async (
   const { subscriberUrl, version } = webhook;
   if (!subscriberUrl || !body) {
     throw new Error("Missing required elements to send webhook payload.");
+  }
+
+  // Validate URL at delivery time to prevent SSRF (defense-in-depth)
+  const urlValidation = validateUrlForSSRFSync(subscriberUrl);
+  if (!urlValidation.isValid) {
+    throw new Error(`Webhook delivery blocked: ${urlValidation.error}`);
   }
 
   const response = await fetch(subscriberUrl, {

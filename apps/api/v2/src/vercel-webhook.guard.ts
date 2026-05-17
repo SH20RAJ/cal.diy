@@ -41,7 +41,7 @@ export class VercelWebhookGuard implements CanActivate {
       bodyForSignature = JSON.stringify(rawBody);
     }
 
-    const expectedSignature = crypto.createHmac("sha1", webhookSecret).update(bodyForSignature).digest("hex");
+    const expectedSignature = crypto.createHmac("sha256", webhookSecret).update(bodyForSignature).digest("hex");
 
     // Check signature length first (timingSafeEqual throws if lengths differ)
     if (signature.length !== expectedSignature.length) {
