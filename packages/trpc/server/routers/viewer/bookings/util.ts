@@ -8,6 +8,11 @@ import type {
   DestinationCalendar,
   User,
 } from "@calcom/prisma/client";
+
+type CredentialWithoutSensitiveFields = Omit<
+  Credential,
+  "key" | "encryptedKey" | "subscriptionId" | "paymentStatus" | "billingCycleStart"
+>;
 import { MembershipRole, SchedulingType } from "@calcom/prisma/enums";
 
 import { TRPCError } from "@trpc/server";
@@ -39,7 +44,17 @@ export const bookingsProcedure = authedProcedure
       user: {
         include: {
           destinationCalendar: true,
-          credentials: true,
+          credentials: {
+            select: {
+              id: true,
+              type: true,
+              appId: true,
+              userId: true,
+              teamId: true,
+              invalid: true,
+              delegationCredentialId: true,
+            },
+          },
           profiles: {
             select: {
               organizationId: true,
@@ -114,7 +129,7 @@ export type BookingsProcedureContext = {
     user:
       | (User & {
           destinationCalendar: DestinationCalendar | null;
-          credentials: Credential[];
+          credentials: CredentialWithoutSensitiveFields[];
           profiles: { organizationId: number }[];
         })
       | null;
