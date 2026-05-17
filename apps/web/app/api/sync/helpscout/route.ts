@@ -1,5 +1,5 @@
 import { defaultResponderForAppDir } from "app/api/defaultResponderForAppDir";
-import { createHmac } from "node:crypto";
+import { createHmac, timingSafeEqual } from "node:crypto";
 import { headers } from "next/headers";
 import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
@@ -43,7 +43,9 @@ async function postHandler(request: NextRequest) {
       .update(rawBody)
       .digest("base64");
 
-    if (hsSignature !== calculatedSig)
+    const sigBuffer = Buffer.from(hsSignature);
+    const calcBuffer = Buffer.from(calculatedSig);
+    if (sigBuffer.length !== calcBuffer.length || !timingSafeEqual(sigBuffer, calcBuffer))
       return NextResponse.json({ message: "Invalid signature" }, { status: 400 });
 
     const user = await webPrisma.user.findFirst({
