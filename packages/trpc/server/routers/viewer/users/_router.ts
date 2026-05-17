@@ -54,12 +54,36 @@ export const userAdminRouter = router({
     const { requestedUser } = ctx;
     return { user: requestedUser };
   }),
-  list: authedAdminProcedure.query(async ({ ctx }) => {
-    const { prisma } = ctx;
-    // TODO: Add search, pagination, etc.
-    const users = await prisma.user.findMany();
-    return users;
-  }),
+  list: authedAdminProcedure
+    .input(
+      z
+        .object({
+          cursor: z.number().nullish(),
+          take: z.number().min(1).max(100).default(100),
+        })
+        .default({})
+    )
+    .query(async ({ ctx, input }) => {
+      const { prisma } = ctx;
+      const { cursor, take } = input;
+      const users = await prisma.user.findMany({
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          username: true,
+          avatarUrl: true,
+          createdAt: true,
+        },
+        take,
+        ...(cursor ? { skip: 1, cursor: { id: cursor } } : {}),
+        orderBy: { id: "asc" },
+      });
+      return {
+        users,
+        nextCursor: users.length === take ? users[users.length - 1].id : null,
+      };
+    }),
   add: authedAdminProcedure.input(userBodySchema).mutation(async ({ ctx, input }) => {
     const { prisma } = ctx;
     const user = await prisma.user.create({ data: { ...input, creationSource: CreationSource.WEBAPP } });

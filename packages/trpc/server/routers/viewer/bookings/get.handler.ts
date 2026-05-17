@@ -1048,6 +1048,10 @@ function addStatusesQueryFilters(query: BookingsUnionQuery, statuses: InputBySta
   return query;
 }
 
+function escapeLikePattern(pattern: string): string {
+  return pattern.replace(/%/g, "\\%").replace(/_/g, "\\_");
+}
+
 function addAdvancedAttendeeWhereClause(
   query: BookingsUnionQuery,
   key: "name" | "email",
@@ -1073,11 +1077,11 @@ function addAdvancedAttendeeWhereClause(
 
   switch (operator) {
     case "endsWith":
-      fullQuery = fullQuery.where(`Attendee.${key}`, "ilike", `%${operand}`);
+      fullQuery = fullQuery.where(`Attendee.${key}`, "ilike", `%${escapeLikePattern(operand)}`);
       break;
 
     case "startsWith":
-      fullQuery = fullQuery.where(`Attendee.${key}`, "ilike", `${operand}%`);
+      fullQuery = fullQuery.where(`Attendee.${key}`, "ilike", `${escapeLikePattern(operand)}%`);
       break;
 
     case "equals":
@@ -1093,11 +1097,11 @@ function addAdvancedAttendeeWhereClause(
       break;
 
     case "contains":
-      fullQuery = fullQuery.where(`Attendee.${key}`, "ilike", `%${operand}%`);
+      fullQuery = fullQuery.where(`Attendee.${key}`, "ilike", `%${escapeLikePattern(operand)}%`);
       break;
 
     case "notContains":
-      fullQuery = fullQuery.where(`Attendee.${key}`, "not ilike", `%${operand}%`);
+      fullQuery = fullQuery.where(`Attendee.${key}`, "not ilike", `%${escapeLikePattern(operand)}%`);
       break;
 
     case "isEmpty":
