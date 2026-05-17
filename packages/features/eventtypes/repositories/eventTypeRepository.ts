@@ -12,7 +12,7 @@ import type { PrismaClient } from "@calcom/prisma";
 import { availabilityUserSelect, userSelect as userSelectWithSelectedCalendars } from "@calcom/prisma";
 import type { Prisma, EventType as PrismaEventType } from "@calcom/prisma/client";
 import { MembershipRole } from "@calcom/prisma/enums";
-import { credentialForCalendarServiceSelect } from "@calcom/prisma/selects/credential";
+import { credentialForCalendarServiceSelect, safeCredentialSelect } from "@calcom/prisma/selects/credential";
 import { EventTypeMetaDataSchema, rrSegmentQueryValueSchema } from "@calcom/prisma/zod-utils";
 import type { Ensure } from "@calcom/types/utils";
 
@@ -1152,7 +1152,7 @@ export class EventTypeRepository implements IEventTypesRepository {
                 name: true,
                 email: true,
                 credentials: {
-                  select: credentialForCalendarServiceSelect,
+                  select: safeCredentialSelect,
                 },
                 selectedCalendars: true,
               },
