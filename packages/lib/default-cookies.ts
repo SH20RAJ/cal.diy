@@ -22,7 +22,7 @@ export function defaultCookies(useSecureCookies: boolean): CookiesOptions {
     // To enable cookies on widgets,
     // https://stackoverflow.com/questions/45094712/iframe-not-reading-cookies-in-chrome
     // But we need to set it as `lax` in development
-    sameSite: useSecureCookies ? "none" : "lax",
+    sameSite: useSecureCookies ? "lax" : "lax",
     path: "/",
     secure: useSecureCookies,
   };
@@ -36,7 +36,10 @@ export function defaultCookies(useSecureCookies: boolean): CookiesOptions {
     },
     callbackUrl: {
       name: `${cookiePrefix}next-auth.callback-url`,
-      options: defaultOptions,
+      options: {
+        ...defaultOptions,
+        httpOnly: true,
+      },
     },
     csrfToken: {
       name: `${cookiePrefix}next-auth.csrf-token`,

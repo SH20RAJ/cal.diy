@@ -8,9 +8,10 @@ export const getCookie = (name: string) => {
     ?.split("=")[1];
 };
 
-export const setCookie = (name: string, value: string, options: string) => {
+export const setCookie = (name: string, value: string, options?: string) => {
   if (typeof document === "undefined") {
     return;
   }
-  document.cookie = `${name}=${value}; ${options}`;
+  const defaultOptions = "path=/; SameSite=Lax; Secure";
+  document.cookie = `${name}=${value}; ${options ? `${options}; ${defaultOptions}` : defaultOptions}`;
 };
