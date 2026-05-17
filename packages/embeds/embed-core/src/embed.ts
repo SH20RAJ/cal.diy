@@ -403,11 +403,12 @@ export class Cal {
       throw new Error("iframe doesn't exist. `createIframe` must be called before `doInIframe`");
     }
     if (this.iframe.contentWindow) {
-      // TODO: Ensure that targetOrigin is as defined by user(and not *). Generally it would be cal.com but in case of self hosting it can be anything.
-      // Maybe we can derive targetOrigin from __config.origin
+      // Derive targetOrigin from the iframe's src URL to avoid posting messages to arbitrary origins.
+      // The iframe's origin is the cal.com instance (or self-hosted) that the embed is pointed at.
+      const targetOrigin = this.iframe.src ? new URL(this.iframe.src).origin : "*";
       this.iframe.contentWindow.postMessage(
         { originator: "CAL", method: doInIframeArg.method, arg: doInIframeArg.arg },
-        "*"
+        targetOrigin
       );
     }
   }
@@ -1570,7 +1571,25 @@ window.addEventListener("message", (e) => {
     return;
   }
 
+  // Validate message origin against the iframe's origin.
+  // Each Cal namespace has a configured calOrigin (the embedded app URL).
+  // Messages must come from that origin to prevent cross-origin attacks.
   const actionManager = Cal.actionsManagers[parsedAction.ns];
+  if (actionManager) {
+    const calInstance = globalCal.ns?.[parsedAction.ns]?.instance;
+    const expectedOrigin = calInstance?.__config?.calOrigin;
+    if (expectedOrigin) {
+      const expectedOriginUrl = new URL(expectedOrigin);
+      if (e.origin !== expectedOriginUrl.origin) {
+        console.warn(
+          `Cal.diy Embed: Rejected message from origin "${e.origin}" (expected "${expectedOriginUrl.origin}"). ` +
+          "If this is intentional, ensure the origin is correctly configured."
+        );
+        return;
+      }
+    }
+  }
+
   globalCal.__logQueue = globalCal.__logQueue || [];
   globalCal.__logQueue.push({ ...parsedAction, data: detail.data });
 

@@ -509,13 +509,32 @@ export type InterfaceWithParent = {
 
 export const interfaceWithParent: InterfaceWithParent = methods;
 
+// Derive the parent origin for postMessage targetOrigin.
+// window.location.ancestorOrigins[0] is the origin of the parent page that embedded this iframe.
+// Fallback to "*" only if ancestorOrigins is unavailable (not supported in some Firefox versions)
+// or if the iframe is not actually embedded.
+const getParentOrigin = (): string => {
+  if (typeof window !== "undefined" && window.location?.ancestorOrigins?.[0]) {
+    return window.location.ancestorOrigins[0];
+  }
+  // Fallback: try to derive from document.referrer
+  if (typeof document !== "undefined" && document.referrer) {
+    try {
+      return new URL(document.referrer).origin;
+    } catch {
+      // Invalid referrer URL
+    }
+  }
+  return "*";
+};
+
 const messageParent = (data: CustomEvent["detail"]) => {
   parent.postMessage(
     {
       originator: "CAL",
       ...data,
     },
-    "*"
+    getParentOrigin()
   );
 };
 
@@ -556,11 +575,26 @@ function main() {
     url.searchParams.get("cal.skipSlotsFetch") !== "true";
   log(`Slots will ${willSlotsBeFetched ? "" : "NOT "}be fetched`);
 
+  // Cache the expected parent origin for message validation.
+  // window.location.ancestorOrigins[0] is the origin of the parent page embedding this iframe.
+  const expectedParentOrigin =
+    typeof window !== "undefined" ? window.location?.ancestorOrigins?.[0] : null;
+
   window.addEventListener("message", (e) => {
     const data: Message = e.data;
     if (!data) {
       return;
     }
+
+    // Validate that the message comes from the expected parent origin.
+    // ancestorOrigins[0] is reliable for iframes and available in all modern browsers.
+    if (expectedParentOrigin && e.origin !== expectedParentOrigin) {
+      log(
+        `Rejected message from origin "${e.origin}" (expected parent: "${expectedParentOrigin}")`
+      );
+      return;
+    }
+
     const method: keyof typeof interfaceWithParent = data.method;
     if (data.originator === "CAL" && typeof method === "string") {
       interfaceWithParent[method]?.(data.arg as never);
