@@ -84,7 +84,7 @@ function PageWrapper(props: AppProps) {
         // And we don't want it to error here anyways
         // eslint-disable-next-line react/no-danger
         // biome-ignore lint/security/noDangerouslySetInnerHtml: Setting page status requires inline script
-        dangerouslySetInnerHTML={{ __html: `window.CalComPageStatus = '${pageStatus}'` }}
+        dangerouslySetInnerHTML={{ __html: `window.CalComPageStatus = ${JSON.stringify(pageStatus)}` }}
       />
 
       <style jsx global>{`

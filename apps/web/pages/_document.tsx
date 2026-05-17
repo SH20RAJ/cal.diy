@@ -58,8 +58,8 @@ class MyDocument extends Document<Props> {
             // biome-ignore lint/security/noDangerouslySetInnerHtml: Setting locale and theme requires inline script
             dangerouslySetInnerHTML={{
               __html: `
-              window.calNewLocale = "${newLocale}";
-              window.calIsDesktopApp = ${isDesktopApp};
+              window.calNewLocale = ${JSON.stringify(newLocale)};
+              window.calIsDesktopApp = ${JSON.stringify(isDesktopApp)};
               (${applyTheme.toString()})();
               (${applyToDesktopClass.toString()})();
             `,
