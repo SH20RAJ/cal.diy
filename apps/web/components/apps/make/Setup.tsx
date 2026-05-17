@@ -1,4 +1,5 @@
 import type { InferGetServerSidePropsType } from "next";
+import { randomBytes } from "crypto";
 import { useState } from "react";
 import { Toaster } from "sonner";
 
@@ -35,7 +36,7 @@ export default function MakeSetup({ inviteLink }: InferGetServerSidePropsType<ty
 
   async function createApiKey(teamId?: number) {
     const event = { note: "Make", expiresAt: null, appId: MAKE, teamId };
-    const apiKey = `cal_live_${Math.random().toString(36).substring(2)}`;
+    const apiKey = `cal_live_${randomBytes(32).toString("hex")}`;
 
     if (oldApiKey?.data) {
       const oldKey = teamId
