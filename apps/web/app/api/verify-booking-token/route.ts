@@ -74,6 +74,13 @@ async function handleBookingAction(
 ) {
   const booking = await prisma.booking.findUnique({
     where: { oneTimePassword: token },
+    select: {
+      id: true,
+      uid: true,
+      userId: true,
+      recurringEventId: true,
+      attendees: { select: { email: true } },
+    },
   });
 
   if (!booking) {
@@ -83,8 +90,22 @@ async function handleBookingAction(
     );
   }
 
+  const requestedUserId = Number(userId);
+
+  // Validate that the requested userId is the booking owner (organizer)
+  // This prevents IDOR where an attacker could pass arbitrary userId values
+  if (booking.userId !== requestedUserId) {
+    return NextResponse.redirect(
+      new URL(
+        `/booking/${bookingUid}?error=${encodeURIComponent("Unauthorized: user is not the booking organizer")}`,
+        WEBAPP_URL
+      ),
+      { status: 303 }
+    );
+  }
+
   const user = await prisma.user.findUniqueOrThrow({
-    where: { id: Number(userId) },
+    where: { id: requestedUserId },
     select: {
       id: true,
       uuid: true,

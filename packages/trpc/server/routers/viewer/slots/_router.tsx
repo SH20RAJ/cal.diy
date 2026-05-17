@@ -47,7 +47,9 @@ export const slotsRouter = router({
     .input(ZRemoveSelectedSlotInputSchema)
     .mutation(async ({ input, ctx }) => {
       const { req, prisma } = ctx;
-      const uid = req?.cookies?.uid || input.uid;
+      // Only trust the server-side cookie uid, never user-supplied input.uid
+      // to prevent IDOR (deleting other users' slot reservations)
+      const uid = req?.cookies?.uid;
       if (uid) {
         await prisma.selectedSlots.deleteMany({ where: { uid: { equals: uid } } });
       }
