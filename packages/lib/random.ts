@@ -1,15 +1,8 @@
-const CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-const CHARACTERS_LENGTH = CHARACTERS.length;
+import crypto from "node:crypto";
 
 /**
- * Generate a random string of a given length using alphanumeric characters.
+ * Generate a cryptographically secure random string of a given length using alphanumeric characters.
  */
 export const randomString = function (length = 12) {
-  let result = "";
-
-  for (let i = 0; i < length; i++) {
-    result += CHARACTERS.charAt(Math.floor(Math.random() * CHARACTERS_LENGTH));
-  }
-
-  return result;
+  return crypto.randomBytes(length).toString("base64url").slice(0, length);
 };
