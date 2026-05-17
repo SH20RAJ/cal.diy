@@ -102,8 +102,12 @@ export const sendEmailVerificationByCode = async ({
   }
 
   const translation = await getTranslation(language ?? "en", "common");
-  const secret = createHash("md5")
-    .update(email + process.env.CALENDSO_ENCRYPTION_KEY)
+  const encryptionKey = process.env.CALENDSO_ENCRYPTION_KEY;
+  if (!encryptionKey) {
+    throw new Error("CALENDSO_ENCRYPTION_KEY is not set");
+  }
+  const secret = createHash("sha256")
+    .update(email + encryptionKey)
     .digest("hex");
 
   totp.options = { step: 900 };

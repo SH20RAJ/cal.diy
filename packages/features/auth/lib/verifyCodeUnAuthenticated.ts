@@ -14,8 +14,12 @@ export const verifyCodeUnAuthenticated = async (email: string, code: string) => 
     identifier: `emailVerifyCode.${hashEmail(email)}`,
   });
 
-  const secret = createHash("md5")
-    .update(email + (process.env.CALENDSO_ENCRYPTION_KEY || ""))
+  const encryptionKey = process.env.CALENDSO_ENCRYPTION_KEY;
+  if (!encryptionKey) {
+    throw new Error("CALENDSO_ENCRYPTION_KEY is not set");
+  }
+  const secret = createHash("sha256")
+    .update(email + encryptionKey)
     .digest("hex");
 
   const isValidToken = totpRawCheck(code, secret, { step: 900 });
