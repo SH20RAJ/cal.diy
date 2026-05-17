@@ -35,7 +35,7 @@ export default function MakeSetup({ inviteLink }: InferGetServerSidePropsType<ty
 
   async function createApiKey(teamId?: number) {
     const event = { note: "Make", expiresAt: null, appId: MAKE, teamId };
-    const apiKey = `cal_live_${Math.random().toString(36).substring(2)}`;
+    const apiKey = `cal_live_${require("node:crypto").randomBytes(24).toString("base64url")}`;
 
     if (oldApiKey?.data) {
       const oldKey = teamId
